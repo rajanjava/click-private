@@ -70,6 +70,11 @@ tests/test_options.py:1191: AssertionError
 
 ---
 
+## Solution Approach
+1. **Trace Envvar Resolution Path:** Compared how `Parameter.resolve_envvar_value` derives the environment variable name using `ctx.auto_envvar_prefix` versus how `Parameter.get_error_hint` formats the missing-parameter hint.
+2. **Reuse Derived Prefix in Error Reporting:** Instead of duplicating prefix formatting rules in multiple error handlers, compute the effective envvar name inside `get_error_hint` when `show_envvar=True` and `auto_envvar_prefix` is active, falling back gracefully when explicit `envvar` is set.
+3. **TDD & Regression Safety:** Reproduced the missing envvar hint with a failing test in `tests/test_options.py`, verified the fix restores the exact hint format, and ran the full Click option test suite.
+
 ## 💡 Solution
 
 Updated `Option.get_error_hint()` in `src/click/core.py` to derive `envvar` using `ctx.auto_envvar_prefix` when `self.envvar` is not explicitly set:
